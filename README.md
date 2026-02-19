@@ -1,30 +1,46 @@
-<<<<<<< HEAD
-# NetShield
+# NetShield Website
 
-Monitor internet speed, ISP, IP address, and phishing risks — all in one sleek browser extension.
+Landing page and live demo for the NetShield browser extension.
 
-## Features
+## Download
 
-- **IP Address** — See your public IP and copy with one click
-- **ISP & Location** — Know your provider and geographic location
-- **Phishing Detection** — Real-time analysis of sites you visit
-- **Speed Test** — Measure download speed and ping
+The `NetShield-Extension.zip` file in this folder contains the extension. Users can download it from the website and load it in Chrome via "Load unpacked" after extracting.
 
-## Install
+To refresh the zip after changes, run from the project root:
+```powershell
+Compress-Archive -Path manifest.json, popup.js, popup.css, popup.html, background.js, content.js, icons -DestinationPath website\NetShield-Extension.zip -Force
+```
 
-1. [Download the extension](https://github.com/YOUR_USERNAME/NetShield-Extension/raw/main/website/NetShield-Extension.zip) (or clone and use the `website/NetShield-Extension.zip`)
-2. Extract the ZIP to a folder
-3. Open `chrome://extensions`, enable **Developer mode**
-4. Click **Load unpacked** and select the extracted folder
+## Run locally
 
-## Website
+The site uses `fetch()` to load network info. Browsers may block this when opening `index.html` directly (`file://`). Use a local server:
 
-The landing page and live demo are in the `website/` folder. When you push to GitHub and enable Pages, it will be hosted automatically.
+```bash
+# From the website folder:
+npx serve .
 
-## License
+# Or with Python:
+python -m http.server 8000
+```
 
-MIT
-=======
-# Netshield-Browser-Extension
-A simple browser extension file that lets you see if the website is safe, shows your ISP (Internet Service Provider), Your IP address and you can also check your internet speed!
->>>>>>> 54935f131c4597699955ddfd2a442a9ce00f242b
+Then open `http://localhost:3000` (serve) or `http://localhost:8000` (Python).
+
+## Deployment & HTTPS
+
+**Netlify** — Deploy the `website` folder. HTTPS is automatic. The `_headers` file adds security headers (HSTS, X-Frame-Options, etc.).
+
+**Vercel** — Deploy the `website` folder. HTTPS is automatic. The `vercel.json` file adds the same security headers.
+
+Both platforms enforce HTTPS by default, so your site will be served over TLS.
+
+## Security
+
+- **Meta tags** — `referrer`, `X-Content-Type-Options`, `X-UA-Compatible`
+- **Server headers** (when deployed) — Strict-Transport-Security (HSTS), X-Frame-Options, Referrer-Policy, Permissions-Policy
+
+## Contents
+
+- **Hero** — Value proposition and extension mockup
+- **Features** — IP, ISP/Location, Phishing Detection, Speed Test
+- **Live Demo** — Fetches and displays your IP, ISP, speed, and location
+- **Install** — Steps to load the extension in Chrome
