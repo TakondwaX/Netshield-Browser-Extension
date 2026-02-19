@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetShield</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+
+    <!-- ── Splash Screen ── -->
+    <div id="splash">
+        <div class="splash-bg"></div>
+        <div class="splash-content">
+            <div class="splash-ring splash-ring-outer"></div>
+            <div class="splash-ring splash-ring-mid"></div>
+            <div class="splash-logo-wrap">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L4 6V12C4 16.4 7.4 20.5 12 22C16.6 20.5 20 16.4 20 12V6L12 2Z" stroke="currentColor"
+                        stroke-width="1.5" stroke-linejoin="round" />
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="splash-name">NetShield</div>
+            <div class="splash-dots"><span></span><span></span><span></span></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L4 6V12C4 16.4 7.4 20.5 12 22C16.6 20.5 20 16.4 20 12V6L12 2Z"
+                            stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="none" />
+                        <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="logo-text">NetShield</span>
+            </div>
+            <div class="header-right">
+                <span class="version-badge">v1.0</span>
+                <button class="refresh-btn" id="refreshBtn" title="Refresh all data">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 4v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="main">
+
+            <!-- Phishing Alert Card -->
+            <div class="card phishing-card" id="phishingCard">
+                <div class="card-header">
+                    <div class="card-icon" id="phishingIcon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor"
+                                stroke-width="1.5" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="card-title-group">
+                        <span class="card-label">Site Safety</span>
+                        <span class="card-title" id="phishingStatus">Analyzing...</span>
+                    </div>
+                    <div class="risk-badge" id="riskBadge">
+                        <span id="riskText">—</span>
+                    </div>
+                </div>
+                <div class="card-body" id="phishingDetails">
+                    <div class="shimmer-line"></div>
+                    <div class="shimmer-line short"></div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+
+                <!-- IP Address -->
+                <div class="stat-card" id="ipCard">
+                    <div class="stat-icon ip-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" />
+                            <path
+                                d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                                stroke="currentColor" stroke-width="1.5" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">IP Address</span>
+                        <span class="stat-value" id="ipValue">
+                            <span class="shimmer-text">Loading...</span>
+                        </span>
+                    </div>
+                    <button class="copy-btn" id="copyIpBtn" title="Copy IP">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor"
+                                stroke-width="2" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- ISP -->
+                <div class="stat-card" id="ispCard">
+                    <div class="stat-icon isp-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" />
+                            <line x1="12" y1="20" x2="12" y2="20" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">ISP</span>
+                        <span class="stat-value" id="ispValue">
+                            <span class="shimmer-text">Loading...</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="stat-card" id="locationCard">
+                    <div class="stat-icon loc-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" stroke="currentColor"
+                                stroke-width="1.5" />
+                            <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Location</span>
+                        <span class="stat-value" id="locationValue">
+                            <span class="shimmer-text">Loading...</span>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Speed Test Card -->
+            <div class="speed-card" id="speedCard">
+                <div class="speed-header">
+                    <div class="speed-title-group">
+                        <div class="stat-icon speed-icon">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span class="card-label">Speed Test</span>
+                    </div>
+                    <button class="run-speed-btn" id="runSpeedBtn">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
+                        </svg>
+                        Run Test
+                    </button>
+                </div>
+
+                <div class="speed-metrics" id="speedMetrics">
+                    <div class="speed-metric">
+                        <div class="speed-ring download-ring" id="downloadRing">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#dde6f5" stroke-width="6" />
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#0ea572" stroke-width="6"
+                                    stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round"
+                                    transform="rotate(-90 40 40)" id="downloadCircle" class="speed-circle" />
+                            </svg>
+                            <div class="ring-text">
+                                <span class="ring-value" id="downloadValue">—</span>
+                                <span class="ring-unit">Mbps</span>
+                            </div>
+                        </div>
+                        <span class="speed-label">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="margin-right:4px">
+                                <path d="M12 4v16M5 11l7-7 7 7" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Download
+                        </span>
+                    </div>
+
+                    <div class="speed-divider"></div>
+
+                    <div class="speed-metric">
+                        <div class="speed-ring ping-ring" id="pingRing">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#dde6f5" stroke-width="6" />
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="#8b5cf6" stroke-width="6"
+                                    stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round"
+                                    transform="rotate(-90 40 40)" id="pingCircle" class="speed-circle" />
+                            </svg>
+                            <div class="ring-text">
+                                <span class="ring-value" id="pingValue">—</span>
+                                <span class="ring-unit">ms</span>
+                            </div>
+                        </div>
+                        <span class="speed-label">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="margin-right:4px">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" />
+                            </svg>
+                            Ping
+                        </span>
+                    </div>
+                </div>
+
+                <div class="speed-idle" id="speedIdle">
+                    <div class="idle-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <p>Click <strong>Run Test</strong> to measure your connection</p>
+                </div>
+
+                <div class="speed-loading" id="speedLoading" style="display:none;">
+                    <div class="speed-loader">
+                        <div class="loader-ring"></div>
+                        <span>Testing connection...</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Connecting...</span>
+            </div>
+            <div class="footer-datetime">
+                <span id="footerDate"></span>
+                <span class="footer-sep">•</span>
+                <span id="footerTime"></span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
