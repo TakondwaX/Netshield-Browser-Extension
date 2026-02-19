@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NetShield
 
 Monitor internet speed, ISP, IP address, and phishing risks — all in one sleek browser extension.
@@ -23,3 +24,7 @@ The landing page and live demo are in the `website/` folder. When you push to Gi
 ## License
 
 MIT
+=======
+# Netshield-Browser-Extension
+A simple browser extension file that lets you see if the website is safe, shows your ISP (Internet Service Provider), Your IP address and you can also check your internet speed!
+>>>>>>> 54935f131c4597699955ddfd2a442a9ce00f242b
