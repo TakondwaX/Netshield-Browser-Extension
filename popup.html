@@ -47,7 +47,7 @@
                 <span class="logo-text">NetShield</span>
             </div>
             <div class="header-right">
-                <span class="version-badge">v1.0</span>
+                <span class="version-badge">v2.0</span>
                 <button class="refresh-btn" id="refreshBtn" title="Refresh all data">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1 4v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -84,6 +84,27 @@
                 <div class="card-body" id="phishingDetails">
                     <div class="shimmer-line"></div>
                     <div class="shimmer-line short"></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card actions-card" id="actionsCard">
+                <div class="actions-header">
+                    <div class="actions-title-group">
+                        <span class="card-label">Site Controls</span>
+                        <span class="card-title" id="currentSiteStatus">Ready</span>
+                    </div>
+                    <button class="action-btn secondary" id="openSettingsBtn">Settings</button>
+                </div>
+                <div class="actions-body">
+                    <div class="current-site">
+                        <span class="site-label">Current site</span>
+                        <span class="site-value" id="currentSite">—</span>
+                    </div>
+                    <div class="actions-buttons">
+                        <button class="action-btn allow" id="allowlistBtn">Allowlist site</button>
+                        <button class="action-btn block" id="denylistBtn">Blocklist site</button>
+                    </div>
                 </div>
             </div>
 
@@ -168,12 +189,15 @@
                         </div>
                         <span class="card-label">Speed Test</span>
                     </div>
-                    <button class="run-speed-btn" id="runSpeedBtn">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                            <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
-                        </svg>
-                        Run Test
-                    </button>
+                    <div class="speed-actions">
+                        <span class="speed-source" id="speedSource">—</span>
+                        <button class="run-speed-btn" id="runSpeedBtn">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" />
+                            </svg>
+                            Run Test
+                        </button>
+                    </div>
                 </div>
 
                 <div class="speed-metrics" id="speedMetrics">
@@ -239,6 +263,32 @@
                         <div class="loader-ring"></div>
                         <span>Testing connection...</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Activity History -->
+            <div class="card history-card" id="historyCard">
+                <div class="history-header">
+                    <div class="history-title-group">
+                        <span class="card-label">Recent Activity</span>
+                        <span class="card-title">History snapshot</span>
+                    </div>
+                </div>
+                <div class="history-section">
+                    <div class="history-section-header">
+                        <span>Site checks</span>
+                        <span class="history-muted" id="siteHistoryCount">0</span>
+                    </div>
+                    <div class="history-empty" id="siteHistoryEmpty">No site checks yet.</div>
+                    <ul class="history-list" id="siteHistoryList"></ul>
+                </div>
+                <div class="history-section">
+                    <div class="history-section-header">
+                        <span>Speed tests</span>
+                        <span class="history-muted" id="speedHistoryCount">0</span>
+                    </div>
+                    <div class="history-empty" id="speedHistoryEmpty">No speed tests yet.</div>
+                    <ul class="history-list" id="speedHistoryList"></ul>
                 </div>
             </div>
 

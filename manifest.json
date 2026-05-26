@@ -1,1 +1,55 @@
-{"manifest_version":3,"name":"NetShield","version":"1.0.0","description":"Monitor internet speed, ISP, IP address, and phishing risks — all in one sleek interface.","permissions":["activeTab","tabs","storage"],"host_permissions":["https://ipwho.is/*","https://ipapi.co/*","https://opendb.shallalist.de/*","http://www.google.com/safebrowsing/*","https://*.googleapis.com/*"],"action":{"default_popup":"popup.html","default_icon":{"16":"icons/icon16.png","48":"icons/icon48.png","128":"icons/icon128.png"}},"background":{"service_worker":"background.js"},"content_scripts":[{"matches":["<all_urls>"],"js":["content.js"],"run_at":"document_idle"}],"icons":{"16":"icons/icon16.png","48":"icons/icon48.png","128":"icons/icon128.png"}}
+{
+  "manifest_version": 3,
+  "name": "NetShield",
+  "version": "2.0.0",
+  "description": "Monitor internet speed, ISP, IP address, and phishing risks — all in one sleek interface.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "notifications",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://ipwho.is/*",
+    "https://ipapi.co/*",
+    "https://opendb.shallalist.de/*",
+    "http://www.google.com/safebrowsing/*",
+    "https://*.googleapis.com/*",
+    "https://safebrowsing.googleapis.com/*",
+    "https://speed.cloudflare.com/*",
+    "https://httpbin.org/*",
+    "https://www.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

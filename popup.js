@@ -1,5 +1,30 @@
 // NetShield Popup — Main Logic
 
+const DEFAULT_SETTINGS = {
+    theme: 'system',
+    notifications: {
+        enabled: true,
+        onWarning: false,
+        onDanger: true
+    },
+    refresh: {
+        cadenceMinutes: 15
+    },
+    privacy: {
+        storeHistory: true,
+        storeSpeedHistory: true,
+        storeNetworkHistory: true,
+        enablePageSignals: true
+    },
+    phishing: {
+        useSafeBrowsing: false,
+        safeBrowsingApiKey: '',
+        useHeuristics: true,
+        allowlist: [],
+        denylist: []
+    }
+};
+
 // ── Splash exit ──────────────────────────────
 (function dismissSplash() {
     const splash = document.getElementById('splash');
@@ -37,8 +62,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const downloadCircle = document.getElementById('downloadCircle');
     const pingCircle = document.getElementById('pingCircle');
     const copyIpBtn = document.getElementById('copyIpBtn');
+    const speedSource = document.getElementById('speedSource');
+    const currentSite = document.getElementById('currentSite');
+    const currentSiteStatus = document.getElementById('currentSiteStatus');
+    const allowlistBtn = document.getElementById('allowlistBtn');
+    const denylistBtn = document.getElementById('denylistBtn');
+    const openSettingsBtn = document.getElementById('openSettingsBtn');
+    const siteHistoryList = document.getElementById('siteHistoryList');
+    const speedHistoryList = document.getElementById('speedHistoryList');
+    const siteHistoryEmpty = document.getElementById('siteHistoryEmpty');
+    const speedHistoryEmpty = document.getElementById('speedHistoryEmpty');
+    const siteHistoryCount = document.getElementById('siteHistoryCount');
+    const speedHistoryCount = document.getElementById('speedHistoryCount');
 
     let currentIP = '';
+    let currentDomain = '';
+    let settings = await getSettings();
+
+    applyTheme(settings.theme);
 
     // Clock & Date
     function updateClock() {
@@ -65,11 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ───────────────────────────────────────────
     // Network Info (IP + ISP + Location)
     // ───────────────────────────────────────────
-    async function loadNetworkInfo() {
+    async function loadNetworkInfo(force = false) {
         setStatus('loading', 'Fetching network info...');
 
         try {
-            const data = await chrome.runtime.sendMessage({ type: 'GET_NETWORK_INFO' });
+            const data = await chrome.runtime.sendMessage({ type: 'GET_NETWORK_INFO', force });
 
             if (data && data.success) {
                 currentIP = data.ip;
@@ -81,7 +122,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 animateValue(ispValue, ispStr);
                 animateValue(locationValue, locationStr);
 
-                setStatus('connected', 'Connected');
+                const statusLabel = data.cached ? 'Connected (cached)' : 'Connected';
+                setStatus('connected', statusLabel);
             } else {
                 animateValue(ipValue, 'Unavailable');
                 animateValue(ispValue, 'Unavailable');
@@ -121,35 +163,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
             if (!tab || !tab.url) {
-                renderPhishing({ safe: true, level: 'safe', riskScore: 0, risks: [], safeIndicators: ['No active tab'] });
+                currentDomain = '';
+                updateCurrentSite('No active tab');
+                renderPhishing({
+                    safe: true,
+                    level: 'safe',
+                    riskScore: 0,
+                    label: 'No active tab',
+                    badgeText: 'Safe',
+                    risks: [],
+                    safeIndicators: ['No active tab']
+                });
                 return;
             }
 
-            const result = await chrome.runtime.sendMessage({ type: 'CHECK_PHISHING', url: tab.url });
+            const parsed = new URL(tab.url);
+            currentDomain = parsed.hostname.replace(/^www\./, '');
+            updateCurrentSite(currentDomain);
 
-            // Also get page info from content script
             let pageInfo = null;
-            try {
-                pageInfo = await chrome.tabs.sendMessage(tab.id, { type: 'GET_PAGE_INFO' });
-            } catch (e) { /* content script may not be available on all pages */ }
-
-            if (pageInfo) {
-                // Adjust risk score based on page analysis
-                if (pageInfo.hasLoginForm && result.riskScore > 20) result.riskScore += 10;
-                if (pageInfo.hiddenIframeCount > 0) {
-                    result.riskScore += 15;
-                    result.risks.push(`Hidden iframes (${pageInfo.hiddenIframeCount})`);
-                }
-                result.riskScore = Math.min(100, result.riskScore);
-                if (result.riskScore >= 60) result.level = 'danger';
-                else if (result.riskScore >= 30) result.level = 'warning';
-                else result.level = 'safe';
-                result.safe = result.riskScore < 30;
+            if (settings.privacy.enablePageSignals) {
+                try {
+                    pageInfo = await chrome.tabs.sendMessage(tab.id, { type: 'GET_PAGE_INFO' });
+                } catch (e) { /* content script may not be available on all pages */ }
             }
 
+            const result = await chrome.runtime.sendMessage({
+                type: 'CHECK_PHISHING',
+                url: tab.url,
+                pageInfo
+            });
+
             renderPhishing(result);
+            updateActionButtons();
+            await loadHistory();
         } catch (err) {
-            renderPhishing({ safe: true, level: 'safe', riskScore: 0, risks: [], error: err.message });
+            renderPhishing({
+                safe: true,
+                level: 'safe',
+                riskScore: 0,
+                label: 'Unable to analyze',
+                badgeText: 'Unknown',
+                risks: [],
+                error: err.message
+            });
         }
     }
 
@@ -166,13 +223,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const labels = {
             safe: 'Site Appears Safe',
             warning: 'Proceed with Caution',
-            danger: 'High Phishing Risk!'
+            danger: 'High Phishing Risk!',
+            allowlisted: 'Allowlisted',
+            blocked: 'Blocked Site',
+            unknown: 'Unknown'
         };
-        phishingStatus.textContent = labels[level] || 'Unknown';
+        const statusLabel = result.label || labels[level] || 'Unknown';
+        phishingStatus.textContent = statusLabel;
+        currentSiteStatus.textContent = statusLabel;
 
         // Risk score
-        riskText.textContent = score > 0 ? `${score}% risk` : 'Safe';
-        if (score === 0 && level === 'safe') riskText.textContent = 'Safe';
+        riskText.textContent = result.badgeText || (score > 0 ? `${score}% risk` : 'Safe');
 
         // Build detail items
         phishingDetails.innerHTML = '';
@@ -189,6 +250,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const item = createRiskItem(indicator, 'safe-indicator');
                 phishingDetails.appendChild(item);
             });
+        }
+
+        if (result.sources && result.sources.length > 0) {
+            const item = createRiskItem(`Sources: ${result.sources.join(', ')}`, 'info');
+            phishingDetails.appendChild(item);
         }
 
         if (phishingDetails.children.length === 0) {
@@ -218,6 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         speedIdle.style.display = 'none';
         speedMetrics.classList.remove('visible');
         speedLoading.style.display = 'flex';
+        speedSource.textContent = '—';
 
         try {
             const result = await chrome.runtime.sendMessage({ type: 'RUN_SPEED_TEST' });
@@ -230,6 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 downloadValue.textContent = downloadMbps;
                 pingValue.textContent = ping;
+                speedSource.textContent = result.server ? `via ${result.server}` : '—';
 
                 // Animate rings
                 // Download: max reference 100 Mbps
@@ -243,17 +311,128 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }, 100);
 
                 speedMetrics.classList.add('visible');
+                await loadHistory();
             } else {
                 speedIdle.style.display = 'flex';
+                speedSource.textContent = '—';
                 showToast('Speed test failed. Try again.');
             }
         } catch (err) {
             speedLoading.style.display = 'none';
             speedIdle.style.display = 'flex';
+            speedSource.textContent = '—';
             showToast('Speed test unavailable.');
         } finally {
             runSpeedBtn.disabled = false;
         }
+    }
+
+    // ───────────────────────────────────────────
+    // Quick Actions
+    // ───────────────────────────────────────────
+    function updateCurrentSite(value) {
+        currentSite.textContent = value || '—';
+    }
+
+    function isDomainListed(hostname, list) {
+        return list.some(entry => hostname === entry || hostname.endsWith(`.${entry}`));
+    }
+
+    function updateActionButtons() {
+        if (!currentDomain) {
+            allowlistBtn.disabled = true;
+            denylistBtn.disabled = true;
+            return;
+        }
+        const allowlisted = isDomainListed(currentDomain, settings.phishing.allowlist);
+        const denylisted = isDomainListed(currentDomain, settings.phishing.denylist);
+
+        allowlistBtn.disabled = false;
+        denylistBtn.disabled = false;
+        allowlistBtn.textContent = allowlisted ? 'Remove allowlist' : 'Allowlist site';
+        denylistBtn.textContent = denylisted ? 'Remove blocklist' : 'Blocklist site';
+        allowlistBtn.dataset.action = allowlisted ? 'remove' : 'add';
+        denylistBtn.dataset.action = denylisted ? 'remove' : 'add';
+    }
+
+    async function toggleListEntry(listKey, action) {
+        if (!currentDomain) return;
+        const updated = mergeSettings(DEFAULT_SETTINGS, settings);
+        const list = new Set(updated.phishing[listKey]);
+
+        if (action === 'add') {
+            list.add(currentDomain);
+            if (listKey === 'allowlist') {
+                updated.phishing.denylist = updated.phishing.denylist.filter(entry => entry !== currentDomain);
+            }
+            if (listKey === 'denylist') {
+                updated.phishing.allowlist = updated.phishing.allowlist.filter(entry => entry !== currentDomain);
+            }
+        } else {
+            list.delete(currentDomain);
+        }
+
+        updated.phishing[listKey] = Array.from(list);
+        await chrome.storage.sync.set({ settings: updated });
+        settings = await getSettings();
+        showToast(action === 'add' ? 'List updated' : 'Removed from list');
+        updateActionButtons();
+        await checkCurrentSite();
+    }
+
+    // ───────────────────────────────────────────
+    // History
+    // ───────────────────────────────────────────
+    async function loadHistory() {
+        const { siteHistory = [], speedHistory = [] } = await chrome.storage.local.get(['siteHistory', 'speedHistory']);
+
+        renderHistoryList(siteHistoryList, siteHistory, siteHistoryEmpty, siteHistoryCount, renderSiteHistoryItem);
+        renderHistoryList(speedHistoryList, speedHistory, speedHistoryEmpty, speedHistoryCount, renderSpeedHistoryItem);
+    }
+
+    function renderHistoryList(container, items, emptyEl, countEl, renderer) {
+        container.innerHTML = '';
+        countEl.textContent = String(items.length);
+        if (!items.length) {
+            emptyEl.style.display = 'block';
+            return;
+        }
+        emptyEl.style.display = 'none';
+        items.slice(0, 4).forEach(item => {
+            container.appendChild(renderer(item));
+        });
+    }
+
+    function renderSiteHistoryItem(item) {
+        const li = document.createElement('li');
+        li.className = `history-item ${item.level || 'safe'}`;
+        li.innerHTML = `
+            <span class="history-title">${escapeHtml(item.hostname || 'Unknown')}</span>
+            <span class="history-meta">${escapeHtml(item.summary || '')} • ${formatTimeAgo(item.timestamp)}</span>
+        `;
+        return li;
+    }
+
+    function renderSpeedHistoryItem(item) {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerHTML = `
+            <span class="history-title">${escapeHtml(item.download || '—')} Mbps • ${escapeHtml(item.ping || '—')} ms</span>
+            <span class="history-meta">${escapeHtml(item.server || 'Speed test')} • ${formatTimeAgo(item.timestamp)}</span>
+        `;
+        return li;
+    }
+
+    function formatTimeAgo(timestamp) {
+        if (!timestamp) return 'just now';
+        const diff = Date.now() - timestamp;
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return 'just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
     }
 
     // ───────────────────────────────────────────
@@ -294,7 +473,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         phishingDetails.innerHTML = '<div class="shimmer-line"></div><div class="shimmer-line short"></div>';
         currentIP = '';
 
-        await Promise.all([loadNetworkInfo(), checkCurrentSite()]);
+        await Promise.all([loadNetworkInfo(true), checkCurrentSite()]);
 
         setTimeout(() => refreshBtn.classList.remove('spinning'), 600);
     });
@@ -302,9 +481,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Speed test button
     runSpeedBtn.addEventListener('click', runSpeedTest);
 
+    // Quick actions
+    allowlistBtn.addEventListener('click', () => toggleListEntry('allowlist', allowlistBtn.dataset.action || 'add'));
+    denylistBtn.addEventListener('click', () => toggleListEntry('denylist', denylistBtn.dataset.action || 'add'));
+    openSettingsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
+
     // ───────────────────────────────────────────
     // Init
     // ───────────────────────────────────────────
     setStatus('loading', 'Connecting...');
-    await Promise.all([loadNetworkInfo(), checkCurrentSite()]);
+    await Promise.all([loadNetworkInfo(), checkCurrentSite(), loadHistory()]);
 });
+
+function mergeSettings(base, override) {
+    const merged = { ...base };
+    Object.keys(override || {}).forEach((key) => {
+        if (override[key] && typeof override[key] === 'object' && !Array.isArray(override[key])) {
+            merged[key] = mergeSettings(base[key] || {}, override[key]);
+        } else if (override[key] !== undefined) {
+            merged[key] = override[key];
+        }
+    });
+    return merged;
+}
+
+async function getSettings() {
+    const { settings } = await chrome.storage.sync.get('settings');
+    return normalizeSettings(mergeSettings(DEFAULT_SETTINGS, settings || {}));
+}
+
+function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === 'system') {
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        const updateTheme = () => root.setAttribute('data-theme', media.matches ? 'dark' : 'light');
+        updateTheme();
+        media.addEventListener('change', updateTheme);
+    } else {
+        root.setAttribute('data-theme', theme);
+    }
+}
+
+function normalizeSettings(settings) {
+    return {
+        ...settings,
+        phishing: {
+            ...settings.phishing,
+            allowlist: normalizeList(settings.phishing?.allowlist),
+            denylist: normalizeList(settings.phishing?.denylist)
+        }
+    };
+}
+
+function normalizeList(list) {
+    if (!Array.isArray(list)) return [];
+    return [...new Set(list.map(item => item.trim().toLowerCase()).filter(Boolean))];
+}

@@ -6,9 +6,16 @@ Landing page and live demo for the NetShield browser extension.
 
 The `NetShield-Extension.zip` file in this folder contains the extension. Users can download it from the website and load it in Chrome via "Load unpacked" after extracting.
 
+## V2 highlights
+
+- Safe Browsing integration (optional API key) plus heuristic checks
+- Allowlist/blocklist controls and phishing notifications
+- Speed + site history snapshots for quick trend checks
+- Customizable refresh cadence and privacy controls
+
 To refresh the zip after changes, run from the project root:
 ```powershell
-Compress-Archive -Path manifest.json, popup.js, popup.css, popup.html, background.js, content.js, icons -DestinationPath website\NetShield-Extension.zip -Force
+Compress-Archive -Path manifest.json, popup.js, popup.css, popup.html, options.html, options.css, options.js, background.js, content.js, icons -DestinationPath website\NetShield-Extension.zip -Force
 ```
 
 ## Run locally

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetShield Settings</title>
+    <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+    <div class="page">
+        <header class="page-header">
+            <div>
+                <h1>NetShield Settings</h1>
+                <p class="subtitle">Tune protection, privacy, refresh cadence, and appearance.</p>
+            </div>
+            <span class="version-badge">v2.0</span>
+        </header>
+
+        <section class="card">
+            <h2>Phishing Protection</h2>
+            <div class="field-row">
+                <label class="toggle">
+                    <input type="checkbox" id="useSafeBrowsing" />
+                    <span>Enable Google Safe Browsing (API key required)</span>
+                </label>
+            </div>
+            <div class="field">
+                <label for="safeBrowsingKey">Safe Browsing API Key</label>
+                <input type="text" id="safeBrowsingKey" placeholder="Paste your API key" />
+                <p class="help">Keys are stored locally in your browser sync storage.</p>
+            </div>
+            <div class="field-row">
+                <label class="toggle">
+                    <input type="checkbox" id="useHeuristics" />
+                    <span>Enable heuristic analysis</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" id="usePageSignals" />
+                    <span>Use page signals (forms, iframes, metadata)</span>
+                </label>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Allowlist &amp; Blocklist</h2>
+            <div class="field">
+                <label for="allowlist">Allowlist domains (one per line)</label>
+                <textarea id="allowlist" rows="5" placeholder="example.com"></textarea>
+            </div>
+            <div class="field">
+                <label for="denylist">Blocklist domains (one per line)</label>
+                <textarea id="denylist" rows="5" placeholder="phishy-site.com"></textarea>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Notifications</h2>
+            <div class="field-row">
+                <label class="toggle">
+                    <input type="checkbox" id="notificationsEnabled" />
+                    <span>Enable phishing alerts</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" id="notifyWarnings" />
+                    <span>Notify on warnings (not just high risk)</span>
+                </label>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Refresh &amp; Privacy</h2>
+            <div class="field">
+                <label for="refreshCadence">Background refresh cadence</label>
+                <select id="refreshCadence">
+                    <option value="0">Off</option>
+                    <option value="5">Every 5 minutes</option>
+                    <option value="15">Every 15 minutes</option>
+                    <option value="30">Every 30 minutes</option>
+                    <option value="60">Every hour</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <label class="toggle">
+                    <input type="checkbox" id="storeHistory" />
+                    <span>Store site check history</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" id="storeSpeedHistory" />
+                    <span>Store speed test history</span>
+                </label>
+                <label class="toggle">
+                    <input type="checkbox" id="storeNetworkHistory" />
+                    <span>Store network info history</span>
+                </label>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Appearance</h2>
+            <div class="field">
+                <label for="themeSelect">Popup theme</label>
+                <select id="themeSelect">
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="card actions-card">
+            <div class="action-row">
+                <button id="saveBtn" class="primary">Save settings</button>
+                <button id="resetBtn" class="secondary">Reset to defaults</button>
+            </div>
+            <div class="action-row">
+                <button id="clearSiteHistory" class="ghost">Clear site history</button>
+                <button id="clearSpeedHistory" class="ghost">Clear speed history</button>
+                <button id="clearNetworkHistory" class="ghost">Clear network history</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+    <script src="options.js"></script>
+</body>
+</html>
