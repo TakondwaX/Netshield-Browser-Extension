@@ -274,12 +274,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return div;
     }
 
-    function escapeHtml(str) {
-        const d = document.createElement('div');
-        d.appendChild(document.createTextNode(str));
-        return d.innerHTML;
-    }
-
     // ───────────────────────────────────────────
     // Speed Test
     // ───────────────────────────────────────────
@@ -540,4 +534,10 @@ function normalizeSettings(settings) {
 function normalizeList(list) {
     if (!Array.isArray(list)) return [];
     return [...new Set(list.map(item => item.trim().toLowerCase()).filter(Boolean))];
+}
+
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(str));
+    return d.innerHTML;
 }

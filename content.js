@@ -6,6 +6,8 @@
     if (window.__netshieldInjected) return;
     window.__netshieldInjected = true;
 
+    const SUSPICIOUS_KEYWORD_REGEX = /(login|verify|account|secure|password|signin|bank|wallet)/i;
+
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === 'GET_PAGE_INFO') {
             const info = analyzePage();
@@ -55,8 +57,7 @@
 
         const title = document.title || '';
         const metaDescription = document.querySelector('meta[name="description"]')?.content || '';
-        const suspiciousKeywordMatch = /(login|verify|account|secure|password|signin|bank|wallet)/i
-            .test(`${title} ${metaDescription}`);
+        const suspiciousKeywordMatch = SUSPICIOUS_KEYWORD_REGEX.test(`${title} ${metaDescription}`);
 
         // Check for favicon mismatch (basic brand spoofing check)
         const favicon = document.querySelector('link[rel*="icon"]');
