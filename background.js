@@ -33,6 +33,7 @@ const HISTORY_LIMITS = {
     network: 20
 };
 const NOTIFY_COOLDOWN = 5 * 60 * 1000;
+const EXTENSION_VERSION = chrome.runtime.getManifest().version;
 
 let cachedData = null;
 let cacheTimestamp = 0;
@@ -429,7 +430,7 @@ async function checkSafeBrowsing(url, apiKey) {
         const body = {
             client: {
                 clientId: 'netshield',
-                clientVersion: '2.0.0'
+                clientVersion: EXTENSION_VERSION
             },
             threatInfo: {
                 threatTypes: ['MALWARE', 'SOCIAL_ENGINEERING', 'UNWANTED_SOFTWARE', 'POTENTIALLY_HARMFUL_APPLICATION'],
@@ -510,10 +511,12 @@ function extractHostname(url) {
 
 async function maybeNotify(result, settings) {
     if (!settings.notifications?.enabled) return;
-    if (result.level === 'warning' && !settings.notifications.onWarning) return;
-    if (result.level === 'danger' && !settings.notifications.onDanger) return;
-    if (result.level === 'blocked' && !settings.notifications.onDanger) return;
-    if (!['warning', 'danger', 'blocked'].includes(result.level)) return;
+    const notifyForLevel = {
+        warning: settings.notifications.onWarning,
+        danger: settings.notifications.onDanger,
+        blocked: settings.notifications.onDanger
+    };
+    if (!notifyForLevel[result.level]) return;
 
     const hostname = result.hostname || extractHostname(result.url || '');
     if (!hostname) return;

@@ -46,6 +46,10 @@ const elements = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    const versionBadge = document.querySelector('[data-version]');
+    if (versionBadge) {
+        versionBadge.textContent = `v${chrome.runtime.getManifest().version}`;
+    }
     loadSettings();
     elements.saveBtn.addEventListener('click', saveSettings);
     elements.resetBtn.addEventListener('click', resetSettings);

@@ -37,6 +37,10 @@ const DEFAULT_SETTINGS = {
 // ─────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const versionBadge = document.querySelector('[data-version]');
+    if (versionBadge) {
+        versionBadge.textContent = `v${chrome.runtime.getManifest().version}`;
+    }
     // Elements
     const refreshBtn = document.getElementById('refreshBtn');
     const runSpeedBtn = document.getElementById('runSpeedBtn');
