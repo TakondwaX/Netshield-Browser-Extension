@@ -99,6 +99,7 @@ body {
   width: 360px;
   min-height: 520px;
   overflow-x: hidden;
+  overflow-y: auto;
   -webkit-font-smoothing: antialiased;
   user-select: none;
 }
