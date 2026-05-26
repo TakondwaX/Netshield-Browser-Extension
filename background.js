@@ -34,6 +34,10 @@ const HISTORY_LIMITS = {
 };
 const NOTIFY_COOLDOWN = 5 * 60 * 1000;
 const EXTENSION_VERSION = chrome.runtime.getManifest().version;
+const RISK_THRESHOLDS = {
+    warning: 35,
+    danger: 70
+};
 
 let cachedData = null;
 let cacheTimestamp = 0;
@@ -396,8 +400,8 @@ async function checkPhishing(url, pageInfo) {
         riskScore = Math.max(0, Math.min(100, riskScore));
 
         let level = 'safe';
-        if (riskScore >= 70) level = 'danger';
-        else if (riskScore >= 35) level = 'warning';
+        if (riskScore >= RISK_THRESHOLDS.danger) level = 'danger';
+        else if (riskScore >= RISK_THRESHOLDS.warning) level = 'warning';
 
         return buildResult({
             safe: riskScore < 35,
@@ -429,7 +433,7 @@ async function checkSafeBrowsing(url, apiKey) {
     try {
         const body = {
             client: {
-                clientId: 'netshield',
+                clientId: 'netshield-extension',
                 clientVersion: EXTENSION_VERSION
             },
             threatInfo: {
