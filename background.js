@@ -404,7 +404,7 @@ async function checkPhishing(url, pageInfo) {
         else if (riskScore >= RISK_THRESHOLDS.warning) level = 'warning';
 
         return buildResult({
-            safe: riskScore < 35,
+            safe: riskScore < RISK_THRESHOLDS.warning,
             level,
             riskScore,
             risks,

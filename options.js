@@ -31,6 +31,7 @@ const elements = {
     allowlist: document.getElementById('allowlist'),
     denylist: document.getElementById('denylist'),
     notificationsEnabled: document.getElementById('notificationsEnabled'),
+    notifyDanger: document.getElementById('notifyDanger'),
     notifyWarnings: document.getElementById('notifyWarnings'),
     refreshCadence: document.getElementById('refreshCadence'),
     storeHistory: document.getElementById('storeHistory'),
@@ -86,6 +87,7 @@ async function loadSettings() {
     elements.allowlist.value = (merged.phishing.allowlist || []).join('\n');
     elements.denylist.value = (merged.phishing.denylist || []).join('\n');
     elements.notificationsEnabled.checked = merged.notifications.enabled;
+    elements.notifyDanger.checked = merged.notifications.onDanger;
     elements.notifyWarnings.checked = merged.notifications.onWarning;
     elements.refreshCadence.value = String(merged.refresh.cadenceMinutes);
     elements.storeHistory.checked = merged.privacy.storeHistory;
@@ -100,7 +102,7 @@ async function saveSettings() {
         notifications: {
             enabled: elements.notificationsEnabled.checked,
             onWarning: elements.notifyWarnings.checked,
-            onDanger: true
+            onDanger: elements.notifyDanger.checked
         },
         refresh: {
             cadenceMinutes: Number(elements.refreshCadence.value || 0)
