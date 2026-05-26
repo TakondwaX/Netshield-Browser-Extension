@@ -1,4 +1,4 @@
-# Deploy the website folder to GitHub Pages
+# Deploy the repository root site to GitHub Pages
 name: Deploy to GitHub Pages
 
 on:
@@ -26,7 +26,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: website
+          path: .
 
       - name: Deploy to GitHub Pages
         id: deployment

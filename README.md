@@ -8,7 +8,7 @@ The `NetShield-Extension.zip` file in this folder contains the extension. Users 
 
 To refresh the zip after changes, run from the project root:
 ```powershell
-Compress-Archive -Path manifest.json, popup.js, popup.css, popup.html, background.js, content.js, icons -DestinationPath website\NetShield-Extension.zip -Force
+Compress-Archive -Path manifest.json, popup.js, popup.css, popup.html, background.js, content.js, icons -DestinationPath NetShield-Extension.zip -Force
 ```
 
 ## Run locally
@@ -16,7 +16,7 @@ Compress-Archive -Path manifest.json, popup.js, popup.css, popup.html, backgroun
 The site uses `fetch()` to load network info. Browsers may block this when opening `index.html` directly (`file://`). Use a local server:
 
 ```bash
-# From the website folder:
+# From the project root:
 npx serve .
 
 # Or with Python:
@@ -27,9 +27,11 @@ Then open `http://localhost:3000` (serve) or `http://localhost:8000` (Python).
 
 ## Deployment & HTTPS
 
-**Netlify** — Deploy the `website` folder. HTTPS is automatic. The `_headers` file adds security headers (HSTS, X-Frame-Options, etc.).
+**GitHub Pages** — The workflow in `.github/workflows/deploy-pages.yml` deploys this repository root on every push to `main`.
 
-**Vercel** — Deploy the `website` folder. HTTPS is automatic. The `vercel.json` file adds the same security headers.
+**Netlify** — Deploy the repository root. HTTPS is automatic. The `_headers` file adds security headers (HSTS, X-Frame-Options, etc.).
+
+**Vercel** — Deploy the repository root. HTTPS is automatic. The `vercel.json` file adds the same security headers.
 
 Both platforms enforce HTTPS by default, so your site will be served over TLS.
 
